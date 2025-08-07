@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sheyla Nails Studio</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #6a0dad;
+      color: white;
+      scroll-behavior: smooth;
+      margin-left: 36px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: auto;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    h1, h2, p {
+      text-align: center;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 36px;
+      height: 100vh;
+      background-color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 1rem;
+      z-index: 1000;
+      transition: width 0.3s ease-in-out;
+    }
+
+    .sidebar:hover {
+      width: 100px;
+    }
+
+    .sidebar button {
+      position: relative;
+      background: none;
+      border: none;
+      color: white;
+      font-size: clamp(1.2rem, 3.5vw, 1.3rem);
+      padding: 0.8rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, color 0.3s ease;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      touch-action: manipulation;
+    }
+
+    .sidebar button:hover {
+      color: #ff0080;
+      transform: scale(1.2);
+      animation: bounce 0.3s ease;
+    }
+
+    .sidebar button:active {
+      transform: scale(0.9);
+      transition: transform 0.1s ease;
+    }
+
+    .sidebar button .tooltip {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(5px);
+      background-color: #ff0080;
+      color: white;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: clamp(0.65rem, 1.5vw, 0.7rem);
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+    }
+
+    .sidebar:hover button .tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+    }
+
+    @media (hover: none) {
+      .sidebar {
+        width: 36px !important;
+      }
+      .sidebar button .tooltip {
+        display: none;
+      }
+    }
+
+    header {
+      background-color: #6a0dad;
+      color: white;
+      text-align: center;
+      padding: 1.5rem 0.7rem;
+      position: fixed;
+      top: 0;
+      width: calc(100% - 36px);
+      z-index: 100;
+    }
+
+    header h1 {
+      font-size: clamp(1.5rem, 5vw, 2rem);
+    }
+
+    /* Animación de borde con luz que cambia de color */
+    @keyframes glowing-border {
+      0% {
+        box-shadow: 0 0 5px #ff0080, 0 0 10px #ff0080, 0 0 15px #ff0080;
+      }
+      25% {
+        box-shadow: 0 0 5px #800080, 0 0 10px #800080, 0 0 15px #800080;
+      }
+      50% {
+        box-shadow: 0 0 5px #00b7eb, 0 0 10px #00b7eb, 0 0 15px #00b7eb;
+      }
+      75% {
+        box-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 15px #ffffff;
+      }
+      100% {
+        box-shadow: 0 0 5px #ff0080, 0 0 10px #ff0080, 0 0 15px #ff0080;
+      }
+    }
+
+    .presentacion {
+      width: calc(100% - 36px);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+    }
+
+    .info-presentacion {
+      width: 100%;
+      text-align: center;
+      text-shadow: 1px 1px 3px #000;
+      margin-bottom: 15px;
+    }
+
+    .info-presentacion p {
+      font-size: clamp(0.75rem, 3vw, 0.85rem);
+      margin-bottom: 12px;
+    }
+
+    .descripcion-extra {
+      font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+      margin-top: 12px;
+      max-width: 90%;
+      text-shadow: 1px 1px 3px #000;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .descripcion-extra:hover {
+      transform: scale(1.05);
+    }
+
+    .image-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .imagen-container {
+      position: relative;
+      padding: 5px;
+      border-radius: 8px;
+      width: 48%;
+      max-width: 120px;
+      min-width: 70px;
+      transition: transform 0.3s ease-in-out;
+      animation: glowing-border 3s infinite;
+    }
+
+    .imagen-container:hover {
+      transform: scale(1.1);
+    }
+
+    .imagen-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #ff0080;
+      border-radius: 8px;
+      z-index: 0;
+    }
+
+    .imagen-container img {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      display: block;
+      visibility: visible;
+      loading: lazy;
+    }
+
+    .image-container .imagen-container:nth-child(1),
+    .image-container .imagen-container:nth-child(3) {
+      margin-top: -8px;
+    }
+
+    .image-container .imagen-container:nth-child(2),
+    .image-container .imagen-container:nth-child(4) {
+      margin-top: 8px;
+    }
+
+    .btn-continuar {
+      padding: 8px 16px;
+      background: #25d366;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    }
+
+    .btn-continuar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      background-color: #20b858;
+    }
+
+    .btn-continuar:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .secciones {
+      padding: 5px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+    }
+
+    .seccion {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+
+    .cuadro-container {
+      position: relative;
+      padding: 5px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 250px;
+      transition: transform 0.3s ease-in-out;
+      animation: glowing-border 3s infinite;
+    }
+
+    .cuadro-container:hover {
+      transform: scale(1.05);
+    }
+
+    .cuadro-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #ff0080;
+      border-radius: 12px;
+      z-index: 0;
+    }
+
+    .cuadro {
+      position: relative;
+      z-index: 1;
+      background-color: white;
+      color: #333;
+      padding: 6px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .cuadro img {
+      width: 100%;
+      border-radius: 6px;
+      object-fit: cover;
+      height: 80px;
+      transition: transform 0.3s ease-in-out;
+      loading: lazy;
+    }
+
+    .cuadro img:hover {
+      transform: scale(1.1);
+    }
+
+    .cuadro p {
+      margin: 5px 0;
+      font-weight: bold;
+      font-size: clamp(0.7rem, 2vw, 0.8rem);
+    }
+
+    .cuadro button {
+      background-color: #25d366;
+      color: white;
+      padding: 4px 8px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-bottom: 5px;
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+      touch-action: manipulation;
+    }
+
+    .cuadro button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      background-color: #20b858;
+    }
+
+    .cuadro button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .btn-regresar {
+      background-color: #ff0080;
+      margin-top: 5px;
+    }
+
+    .btn-regresar:hover {
+      background-color: #e60073;
+    }
+
+    .modal, .package-modal, .info-modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #6a0dad;
+      animation: fadeIn 0.3s ease-in-out;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      display: flex;
+      justify-content: center;
+    }
+
+    .modal.active, .package-modal.active, .info-modal.active {
+      display: flex;
+      pointer-events: auto;
+    }
+
+    #catalogo-modal .modal-content {
+      background: white;
+      margin: 10px 0;
+      padding: 5px;
+      border-radius: 12px;
+      max-width: 264px;
+      width: 100%;
+      color: #333;
+      text-align: center;
+      animation: slideIn 0.3s ease-in-out;
+      max-height: 80vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      position: relative;
+      left: 36px;
+    }
+
+    .modal-content, .package-modal-content, .info-modal-content {
+      background: white;
+      margin: 10px auto;
+      padding: 5px;
+      border-radius: 12px;
+      max-width: 264px;
+      width: 100%;
+      color: #333;
+      text-align: center;
+      animation: slideIn 0.3s ease-in-out;
+      max-height: 80vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      position: relative;
+    }
+
+    .modal-content::-webkit-scrollbar, .package-modal-content::-webkit-scrollbar, .info-modal-content::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb, .package-modal-content::-webkit-scrollbar-thumb, .info-modal-content::-webkit-scrollbar-thumb {
+      background-color: #ff0080;
+      border-radius: 3px;
+    }
+
+    .modal-content::-webkit-scrollbar-track, .package-modal-content::-webkit-scrollbar-track, .info-modal-content::-webkit-scrollbar-track {
+      background-color: #f4f4f4;
+    }
+
+    .modal-content h3, .package-modal-content h2, .info-modal-content h2 {
+      margin-bottom: 8px;
+      text-align: center;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+
+    .galeria-modal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .opcion-container {
+      position: relative;
+      padding: 5px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 250px;
+      transition: transform 0.3s ease-in-out;
+      animation: glowing-border 3s infinite;
+    }
+
+    .opcion-container:hover {
+      transform: scale(1.05);
+    }
+
+    .opcion-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #ff0080;
+      border-radius: 8px;
+      z-index: 0;
+    }
+
+    .opcion {
+      position: relative;
+      z-index: 1;
+      background: white;
+      border-radius: 6px;
+      padding: 5px;
+      text-align: center;
+    }
+
+    .opcion img {
+      width: 100%;
+      border-radius: 6px;
+      height: 80px;
+      object-fit: cover;
+      transition: transform 0.3s ease-in-out;
+      loading: lazy;
+    }
+
+    .opcion img:hover {
+      transform: scale(1.1);
+    }
+
+    .opcion p {
+      margin: 5px 0 4px;
+      font-weight: bold;
+      font-size: clamp(0.65rem, 1.8vw, 0.75rem);
+    }
+
+    .opcion .botones {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-top: 5px;
+    }
+
+    .opcion button, .opcion .btn-reservar {
+      flex: 1;
+      min-width: 50px;
+      max-width: 70px;
+      background-color: #25d366;
+      color: white;
+      padding: 4px 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: clamp(0.6rem, 1.5vw, 0.7rem);
+      cursor: pointer;
+      text-decoration: none;
+      min-height: 25px;
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+      touch-action: manipulation;
+    }
+
+    .opcion .btn-ver-imagen {
+      background-color: #00bcd4;
+    }
+
+    .opcion .btn-anadir-paquete {
+      background-color: #ff9800;
+    }
+
+    .opcion button:hover, .opcion .btn-reservar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .opcion .btn-ver-imagen:hover {
+      background-color: #00acc1;
+    }
+
+    .opcion .btn-reservar:hover {
+      background-color: #20b858;
+    }
+
+    .opcion .btn-anadir-paquete:hover {
+      background-color: #fb8c00;
+    }
+
+    .opcion button:active, .opcion .btn-reservar:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .cerrar-modal {
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    .cerrar-modal button {
+      background: crimson;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: clamp(0.65rem, 1.8vw, 0.75rem);
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+      min-height: 25px;
+      touch-action: manipulation;
+    }
+
+    .cerrar-modal button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      background-color: #b22222;
+    }
+
+    .cerrar-modal button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .package-item {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.3rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .package-item img {
+      width: clamp(25px, 8vw, 35px);
+      height: auto;
+      border-radius: 4px;
+      loading: lazy;
+    }
+
+    .package-item-details {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .package-item-details span {
+      font-size: clamp(0.6rem, 1.8vw, 0.7rem);
+      color: #333;
+    }
+
+    .package-item button {
+      padding: clamp(0.2rem, 1.2vw, 0.3rem);
+      background-color: #ff0080;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: clamp(0.6rem, 1.8vw, 0.7rem);
+      transition: background-color 0.2s;
+      min-height: 25px;
+      touch-action: manipulation;
+    }
+
+    .package-item button:hover {
+      background-color: #e60073;
+    }
+
+    .package-modal-content .close-btn, .package-modal-content .whatsapp-btn {
+      display: block;
+      margin: 0.5rem auto;
+      padding: clamp(0.2rem, 1.2vw, 0.3rem) clamp(0.4rem, 1.5vw, 0.5rem);
+      font-size: clamp(0.6rem, 1.8vw, 0.7rem);
+      min-height: 25px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .package-modal-content .whatsapp-btn {
+      background-color: #25d366;
+    }
+
+    .package-modal-content .whatsapp-btn:hover {
+      background-color: #20b858;
+    }
+
+    .info-modal-content p {
+      font-size: clamp(0.6rem, 2vw, 0.7rem);
+      color: #666;
+      margin-bottom: 0.4rem;
+      text-align: center;
+    }
+
+    .info-modal-content button.close-btn {
+      background-color: #ff0080;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      touch-action: manipulation;
+    }
+
+    .info-modal-content button.close-btn:hover {
+      background-color: #e60073;
+    }
+
+    #imagen-modal .modal-content, #reserva-modal .modal-content {
+      max-width: 264px;
+      padding: 5px;
+    }
+
+    #imagen-modal img, #reserva-modal img {
+      width: 100%;
+      max-width: 264px;
+      max-height: 60vh;
+      object-fit: contain;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      transition: transform 0.3s ease-in-out;
+      loading: lazy;
+    }
+
+    #imagen-modal img:hover, #reserva-modal img:hover {
+      transform: scale(1.05);
+    }
+
+    footer {
+      text-align: center;
+      padding: 0.3rem;
+      background-color: #333;
+      color: white;
+      position: fixed;
+      bottom: 0;
+      width: calc(100% - 36px);
+      font-size: clamp(0.65rem, 1.8vw, 0.7rem);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @media screen and (max-width: 400px) {
+      .sidebar {
+        width: 36px;
+      }
+
+      .sidebar:hover {
+        width: 100px;
+      }
+
+      body, header, footer {
+        margin-left: 36px;
+        width: calc(100% - 36px);
+      }
+
+      .presentacion {
+        width: calc(100% - 36px);
+      }
+
+      .info-presentacion p {
+        font-size: clamp(0.75rem, 3vw, 0.85rem);
+      }
+
+      .descripcion-extra {
+        font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+      }
+
+      .imagen-container, .cuadro-container, .opcion-container {
+        width: 100%;
+        max-width: 250px;
+        min-width: 70px;
+      }
+
+      .imagen-container img, .cuadro img, .opcion img {
+        height: 80px;
+      }
+
+      #catalogo-modal .modal-content, .modal-content, .package-modal-content, .info-modal-content {
+        margin: 10px 0;
+        padding: 5px;
+        max-width: 264px;
+        max-height: 80vh;
+        overflow-x: hidden;
+      }
+
+      .package-modal-content, .info-modal-content {
+        margin: 10px auto;
+      }
+
+      #catalogo-modal .modal-content {
+        left: 36px;
+      }
+
+      #imagen-modal .modal-content, #reserva-modal .modal-content {
+        max-width: 264px;
+      }
+
+      #imagen-modal img, #reserva-modal img {
+        max-height: 60vh;
+      }
+
+      .imagen-container::before, .cuadro-container::before, .opcion-container::before {
+        background: #ff0080;
+      }
+
+      .secciones {
+        padding: 5px;
+      }
+
+      .seccion {
+        gap: 5px;
+        margin-bottom: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <button onclick="showSection('inicio')" title="Inicio" aria-label="Ir a la página de inicio">
+      🏠
+      <span class="tooltip">Inicio</span>
+    </button>
+    <button onclick="showSection('catalogo')" title="Catálogo" aria-label="Ver catálogo de diseños">
+      📖
+      <span class="tooltip">Catálogo</span>
+    </button>
+    <button onclick="showPackageModal()" title="Paquete" aria-label="Ver paquete de diseños">
+      🎁
+      <span class="tooltip">Paquete</span>
+    </button>
+    <button onclick="showInfoModal()" title="Información" aria-label="Ver información de contacto">
+      ℹ️
+      <span class="tooltip">Información</span>
+    </button>
+  </nav>
+
+  <header>
+    <h1>Sheyla Nails Studio</h1>
+  </header>
+
+  <div class="presentacion" id="inicio">
+    <div class="info-presentacion">
+      <p>Estilo, elegancia y belleza en cada diseño de uñas.</p>
+      <button class="btn-continuar" onclick="showSection('catalogo')">Continuar</button>
+    </div>
+    <div class="image-container">
+      <div class="imagen-container">
+        <img src="images/fotoo1.jpg" alt="Diseño de uñas 1" loading="lazy">
+      </div>
+      <div class="imagen-container">
+        <img src="images/fotoo3.jpg" alt="Diseño de uñas 2" loading="lazy">
+      </div>
+      <div class="imagen-container">
+        <img src="images/fotoo2.jpg" alt="Diseño de uñas 3" loading="lazy">
+      </div>
+      <div class="imagen-container">
+        <img src="images/fotoo4.jpg" alt="Diseño de uñas 4" loading="lazy">
+      </div>
+    </div>
+    <p class="descripcion-extra">Descubre nuestros diseños únicos y personalizados para cada cliente.</p>
+  </div>
+
+  <div id="catalogo-modal" class="modal">
+    <div class="modal-content">
+      <h3>Catálogo de Diseños</h3>
+      <div class="secciones">
+        <div class="seccion">
+          <div class="cuadro-container">
+            <div class="cuadro">
+              <img src="images/foto.jpg" alt="Diseño 3D" loading="lazy">
+              <p>Diseño 3D</p>
+              <button onclick="mostrarModal(1)">Ver opciones</button>
+            </div>
+          </div>
+          <div class="cuadro-container">
+            <div class="cuadro">
+              <img src="images/baby.jpg" alt="Baby boomer y Baby color" loading="lazy">
+              <p>Baby boomer y Baby color</p>
+              <button onclick="mostrarModal(2)">Ver opciones</button>
+            </div>
+          </div>
+          <div class="cuadro-container">
+            <div class="cuadro">
+              <img src="images/AcrilicasNaturales.jpg" alt="Acrílicas naturales" loading="lazy">
+              <p>Acrílicas naturales</p>
+              <button onclick="mostrarModal(3)">Ver opciones</button>
+            </div>
+          </div>
+          <div class="cuadro-container">
+            <div class="cuadro">
+              <img src="images/Decoraciónmanoalzada.jpg" alt="Decoración a Pinceles" loading="lazy">
+              <p>Decoración a Pinceles</p>
+              <button onclick="mostrarModal(4)">Ver opciones</button>
+            </div>
+          </div>
+          <div class="cuadro-container">
+            <div class="cuadro">
+              <img src="images/CombinacionDiseño - copia.jpg" alt="Combinación de Diseño" loading="lazy">
+              <p>Combinación de Diseño</p>
+              <button onclick="mostrarModal(5)">Ver opciones</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cerrar-modal">
+        <button onclick="showSection('inicio')">Regresar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h3>Opciones de Diseño</h3>
+      <div class="galeria-modal" id="contenedorOpciones"></div>
+      <div class="cerrar-modal">
+        <button onclick="showSection('catalogo')">Regresar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="imagen-modal" class="modal">
+    <div class="modal-content">
+      <img id="imagen-ampliada" src="" alt="Imagen ampliada" loading="lazy">
+      <div class="cerrar-modal">
+        <button onclick="showSection('catalogo')">Regresar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="reserva-modal" class="modal">
+    <div class="modal-content">
+      <h3>Confirmar Reservación</h3>
+      <p>Has seleccionado el siguiente diseño:</p>
+      <img id="reserva-imagen" src="" alt="Diseño reservado" loading="lazy">
+      <p id="reserva-titulo"></p>
+      <div class="cerrar-modal">
+        <a id="reserva-whatsapp" href="#" target="_blank" class="btn-reservar">Confirmar en WhatsApp</a>
+        <button onclick="showSection('catalogo')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-modal" id="infoModal">
+    <div class="info-modal-content">
+      <h2>Sobre Sheyla Nails Studio</h2>
+      <p>Bienvenidos a Sheyla Nails Studio, donde la creatividad y la elegancia se unen para ofrecerte diseños de uñas únicos. Nuestra misión es realzar tu belleza con estilos personalizados que se adaptan a cualquier ocasión.</p>
+      <p>Explora nuestro catálogo y reserva tu diseño favorito. Contáctanos a través de WhatsApp o visítanos en nuestra página de Facebook para más información.</p>
+      <p><strong>Contacto:</strong><br>
+      WhatsApp: <a href="https://wa.me/+50587649965" target="_blank">+50587649965</a><br>
+      Facebook: <a href="https://www.facebook.com/share/16yTJgkry3/" target="_blank">Sheyla Nails Studio</a></p>
+      <button class="close-btn" onclick="closeInfoModal()">Cerrar</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Sheyla Nails Studio. Todos los derechos reservados.</p>
+  </footer>
+
+  <script>
+    // Objeto de diseños
+    const diseños = {
+      1: [
+        { imagen: "images/foto1.jpg", titulo: "Diseño 1" },
+        { imagen: "images/foto2.png", titulo: "Diseño 2" },
+        { imagen: "images/foto3.jpg", titulo: "Diseño 3" },
+        { imagen: "images/foto4.jpg", titulo: "Diseño 4" },
+        { imagen: "images/foto5.jpg", titulo: "Diseño 5" },
+        { imagen: "images/foto6.jpg", titulo: "Diseño 6" },
+        { imagen: "images/foto7.jpg", titulo: "Diseño 7" },
+        { imagen: "images/foto8.jpg", titulo: "Diseño 8" },
+        { imagen: "images/foto9.jpg", titulo: "Diseño 9" },
+        { imagen: "images/foto10.jpg", titulo: "Diseño 10" },
+        { imagen: "images/foto11.jpg", titulo: "Diseño 11" },
+        { imagen: "images/foto12.jpg", titulo: "Diseño 12" },
+        { imagen: "images/foto13.jpg", titulo: "Diseño 13" },
+        { imagen: "images/foto14.jpg", titulo: "Diseño 14" },
+        { imagen: "images/foto15.jpg", titulo: "Diseño 15" }
+      ],
+      2: [
+        { imagen: "images/babyboomer1.jpg", titulo: "Diseño 1" },
+        { imagen: "images/babyboomer8.jpg", titulo: "Diseño 2" },
+        { imagen: "images/babyboomer3.jpg", titulo: "Diseño 3" },
+        { imagen: "images/babyboomer11.jpg", titulo: "Diseño 4" },
+        { imagen: "images/babyboomer5.jpg", titulo: "Diseño 5" },
+        { imagen: "images/babycolor6.jpg", titulo: "Diseño 6" },
+        { imagen: "images/babycolor7.jpg", titulo: "Diseño 7" },
+        { imagen: "images/babyboomer8.jpg", titulo: "Diseño 8" },
+        { imagen: "images/babycolor9.jpg", titulo: "Diseño 9" },
+        { imagen: "images/babycolor10.jpg", titulo: "Diseño 10" },
+        { imagen: "images/babyboomer11.jpg", titulo: "Diseño 11" },
+        { imagen: "images/babycolor12.jpg", titulo: "Diseño 12" },
+        { imagen: "images/babycolor13.jpg", titulo: "Diseño 13" },
+        { imagen: "images/babycolor14.jpg", titulo: "Diseño 14" },
+        { imagen: "images/babycolor15.jpg", titulo: "Diseño 15" }
+      ],
+      3: [
+        { imagen: "images/AcrilicasNaturales1.jpg", titulo: "Diseño 1" },
+        { imagen: "images/AcrilicasNaturales2.jpg", titulo: "Diseño 2" },
+        { imagen: "images/AcrilicasNaturales3.jpg", titulo: "Diseño 3" },
+        { imagen: "images/AcrilicasNaturales4.jpg", titulo: "Diseño 4" },
+        { imagen: "images/AcrilicasNaturales5.jpg", titulo: "Diseño 5" },
+        { imagen: "images/AcrilicasNaturales6.jpg", titulo: "Diseño 6" },
+        { imagen: "images/AcrilicasNaturales7.jpg", titulo: "Diseño 7" },
+        { imagen: "images/AcrilicasNaturales8.jpg", titulo: "Diseño 8" },
+        { imagen: "images/AcrilicasNaturales9.jpg", titulo: "Diseño 9" },
+        { imagen: "images/AcrilicasNaturales10.jpg", titulo: "Diseño 10" },
+        { imagen: "images/AcrilicasNaturales11.jpg", titulo: "Diseño 11" },
+        { imagen: "images/AcrilicasNaturales12.jpg", titulo: "Diseño 12" },
+        { imagen: "images/AcrilicasNaturales13.jpg", titulo: "Diseño 13" },
+        { imagen: "images/AcrilicasNaturales14.jpg", titulo: "Diseño 14" },
+        { imagen: "images/AcrilicasNaturales15.jpg", titulo: "Diseño 15" }
+      ],
+      4: [
+        { imagen: "images/Decoraciónmanoalzada1.jpg", titulo: "Diseño 1" },
+        { imagen: "images/Decoraciónmanoalzada2.jpg", titulo: "Diseño 2" },
+        { imagen: "images/Decoraciónmanoalzada3.jpg", titulo: "Diseño 3" },
+        { imagen: "images/Decoraciónmanoalzada4.jpg", titulo: "Diseño 4" },
+        { imagen: "images/Decoraciónmanoalzada5.jpg", titulo: "Diseño 5" },
+        { imagen: "images/Decoraciónmanoalzada6.jpg", titulo: "Diseño 6" },
+        { imagen: "images/Decoraciónmanoalzada7.jpg", titulo: "Diseño 7" },
+        { imagen: "images/Decoraciónmanoalzada8.jpg", titulo: "Diseño 8" },
+        { imagen: "images/Decoraciónmanoalzada9.jpg", titulo: "Diseño 9" },
+        { imagen: "images/Decoraciónmanoalzada10.jpg", titulo: "Diseño 10" },
+        { imagen: "images/Decoraciónmanoalzada11.jpg", titulo: "Diseño 11" },
+        { imagen: "images/Decoraciónmanoalzada12.jpg", titulo: "Diseño 12" },
+        { imagen: "images/Decoraciónmanoalzada13.jpg", titulo: "Diseño 13" },
+        { imagen: "images/Decoraciónmanoalzada14.jpg", titulo: "Diseño 14" },
+        { imagen: "images/Decoraciónmanoalzada15.jpg", titulo: "Diseño 15" }
+      ],
+      5: [
+        { imagen: "images/CombinacionDiseño1.jpg", titulo: "Diseño 1" },
+        { imagen: "images/CombinacionDiseño2.jpg", titulo: "Diseño 2" },
+        { imagen: "images/CombinacionDiseño3.jpg", titulo: "Diseño 3" },
+        { imagen: "images/CombinacionDiseño4.jpg", titulo: "Diseño 4" },
+        { imagen: "images/CombinacionDiseño5.jpg", titulo: "Diseño 5" },
+        { imagen: "images/CombinacionDiseño6.jpg", titulo: "Diseño 6" },
+        { imagen: "images/CombinacionDiseño7.jpg", titulo: "Diseño 7" },
+        { imagen: "images/CombinacionDiseño8.jpg", titulo: "Diseño 8" },
+        { imagen: "images/CombinacionDiseño9.jpg", titulo: "Diseño 9" },
+        { imagen: "images/CombinacionDiseño10.jpg", titulo: "Diseño 10" },
+        { imagen: "images/CombinacionDiseño11.jpg", titulo: "Diseño 11" },
+        { imagen: "images/CombinacionDiseño12.jpg", titulo: "Diseño 12" },
+        { imagen: "images/CombinacionDiseño13.jpg", titulo: "Diseño 13" },
+        { imagen: "images/CombinacionDiseño14.jpg", titulo: "Diseño 14" },
+        { imagen: "images/CombinacionDiseño15.jpg", titulo: "Diseño 15" }
+      ]
+    };
+
+    // Paquete
+    let packageItems = JSON.parse(localStorage.getItem('package')) || [];
+
+    // Función para cerrar todos los modales
+    function cerrarTodosModales() {
+      console.log('Cerrando todos los modales');
+      const inicio = document.getElementById('inicio');
+      const catalogoModal = document.getElementById('catalogo-modal');
+      const modal = document.getElementById('modal');
+      const imagenModal = document.getElementById('imagen-modal');
+      const reservaModal = document.getElementById('reserva-modal');
+      const packageModal = document.getElementById('packageModal');
+      const infoModal = document.getElementById('infoModal');
+      const body = document.body;
+
+      inicio.style.display = 'none';
+      catalogoModal.style.display = 'none';
+      modal.style.display = 'none';
+      imagenModal.style.display = 'none';
+      reservaModal.style.display = 'none';
+      if (packageModal) packageModal.style.display = 'none';
+      infoModal.style.display = 'none';
+      body.classList.remove('modal-open');
+    }
+
+    function showSection(sectionId) {
+      console.log(`Mostrando sección: ${sectionId}`);
+      cerrarTodosModales();
+      const inicio = document.getElementById('inicio');
+      const catalogoModal = document.getElementById('catalogo-modal');
+      const body = document.body;
+
+      if (sectionId === 'inicio') {
+        inicio.style.display = 'flex';
+      } else if (sectionId === 'catalogo') {
+        catalogoModal.style.display = 'flex';
+        catalogoModal.classList.add('active');
+        body.classList.add('modal-open');
+      }
+    }
+
+    function cerrarCatalogo() {
+      console.log('Cerrando catálogo');
+      cerrarTodosModales();
+      document.getElementById('inicio').style.display = 'flex';
+    }
+
+    function mostrarModal(id) {
+      console.log(`Mostrando modal opciones: ${id}`);
+      cerrarTodosModales();
+      const contenedor = document.getElementById("contenedorOpciones");
+      contenedor.innerHTML = "";
+      const opciones = diseños[id] || [];
+      opciones.forEach((opcion) => {
+        contenedor.innerHTML += `
+          <div class="opcion-container">
+            <div class="opcion">
+              <img src="${opcion.imagen}" alt="${opcion.titulo}" loading="lazy">
+              <p>${opcion.titulo}</p>
+              <div class="botones">
+                <button class="btn-ver-imagen" onclick="mostrarImagenAmpliada('${opcion.imagen}', '${opcion.titulo}')">Ver Imagen</button>
+                <button class="btn-reservar" onclick="mostrarReservaModal('${opcion.imagen}', '${opcion.titulo}')">Reservar</button>
+                <button class="btn-anadir-paquete" onclick="addToPackage('${opcion.titulo}', '${opcion.imagen}')">Añadir al Paquete</button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      const modal = document.getElementById("modal");
+      modal.style.display = "flex";
+      modal.classList.add('active');
+      document.body.classList.add('modal-open');
+    }
+
+    function mostrarImagenAmpliada(imagen, titulo) {
+      console.log(`Mostrando imagen ampliada: ${titulo}`);
+      cerrarTodosModales();
+      const imagenAmpliada = document.getElementById("imagen-ampliada");
+      imagenAmpliada.src = imagen;
+      imagenAmpliada.alt = titulo;
+      const imagenModal = document.getElementById("imagen-modal");
+      imagenModal.style.display = "flex";
+      imagenModal.classList.add('active');
+      document.body.classList.add('modal-open');
+    }
+
+    function mostrarReservaModal(imagen, titulo) {
+      console.log(`Mostrando modal de reservación: ${titulo}`);
+      cerrarTodosModales();
+      const reservaImagen = document.getElementById("reserva-imagen");
+      const reservaTitulo = document.getElementById("reserva-titulo");
+      const reservaWhatsapp = document.getElementById("reserva-whatsapp");
+      reservaImagen.src = imagen;
+      reservaImagen.alt = titulo;
+      reservaTitulo.textContent = titulo;
+      reservaWhatsapp.href = `https://wa.me/+50587649965?text=Quiero%20reservar%20el%20${encodeURIComponent(titulo)}`;
+      const reservaModal = document.getElementById("reserva-modal");
+      reservaModal.style.display = "flex";
+      reservaModal.classList.add('active');
+      document.body.classList.add('modal-open');
+    }
+
+    function addToPackage(titulo, imagen) {
+      console.log(`Añadiendo al paquete: ${titulo}`);
+      const existingItem = packageItems.find(item => item.titulo === titulo);
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        packageItems.push({ titulo, imagen, quantity: 1 });
+      }
+      localStorage.setItem('package', JSON.stringify(packageItems));
+      console.log(`Paquete actualizado: ${JSON.stringify(packageItems)}`);
+      showPackageModal();
+    }
+
+    function removeFromPackage(titulo) {
+      console.log(`Eliminando del paquete: ${titulo}`);
+      packageItems = packageItems.filter(item => item.titulo !== titulo);
+      localStorage.setItem('package', JSON.stringify(packageItems));
+      console.log(`Paquete actualizado: ${JSON.stringify(packageItems)}`);
+      showPackageModal();
+    }
+
+    function showPackageModal() {
+      console.log('Mostrando modal paquete');
+      cerrarTodosModales();
+      let packageModal = document.getElementById('packageModal');
+      if (!packageModal) {
+        packageModal = document.createElement('div');
+        packageModal.id = 'packageModal';
+        packageModal.className = 'package-modal';
+        document.body.appendChild(packageModal);
+      }
+
+      packageModal.innerHTML = `
+        <div class="package-modal-content">
+          <h2>Paquete de Diseños</h2>
+          <div id="packageList">
+            ${packageItems.length === 0 ? '<p>El paquete está vacío</p>' : packageItems.map(item => `
+              <div class="package-item">
+                <img src="${item.imagen}" alt="${item.titulo}" loading="lazy">
+                <div class="package-item-details">
+                  <span>${item.titulo}</span>
+                  <span>Cantidad: ${item.quantity}</span>
+                </div>
+                <button onclick="removeFromPackage('${item.titulo}')">Eliminar</button>
+              </div>
+            `).join('')}
+          </div>
+          <button class="close-btn" onclick="closePackageModal()">Cerrar</button>
+          ${packageItems.length > 0 ? `<a href="https://wa.me/+50587649965?text=${encodeURIComponent('Quiero reservar: ' + packageItems.map(item => `${item.titulo} x${item.quantity}`).join(', '))}" target="_blank" class="whatsapp-btn">Reservar por WhatsApp</a>` : ''}
+        </div>
+      `;
+      packageModal.style.display = 'flex';
+      packageModal.classList.add('active');
+      document.body.classList.add('modal-open');
+    }
+
+    function closePackageModal() {
+      console.log('Cerrando modal paquete');
+      cerrarTodosModales();
+      document.getElementById('inicio').style.display = 'flex';
+    }
+
+    function showInfoModal() {
+      console.log('Mostrando modal información');
+      cerrarTodosModales();
+      const modal = document.getElementById('infoModal');
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+      document.body.classList.add('modal-open');
+    }
+
+    function closeInfoModal() {
+      console.log('Cerrando modal información');
+      cerrarTodosModales();
+      document.getElementById('inicio').style.display = 'flex';
+    }
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM completamente cargado');
+      document.getElementById('inicio').style.display = 'flex';
+    });
+  </script>
+</body>
+</html>
